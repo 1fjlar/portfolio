@@ -1,26 +1,8 @@
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm install
-
-COPY . .
-RUN npm run build
-
+# Usa a imagem oficial e ultra-leve do servidor Nginx
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copia o seu arquivo index.html para a pasta padrão do servidor Nginx
+COPY index.html /usr/share/nginx/html/index.html
 
-RUN echo "server { \
-    listen 80; \
-    server_name localhost; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html; \
-        try_files \$uri \$uri/ /index.html; \
-    } \
-}" > /etc/nginx/conf.d/default.conf
-
+# Informa ao Easypanel que a porta de comunicação é a 80
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
